@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Presentation Listening Log</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--navy:#1f2b55;--blue:#49679b;--accent:#e8734e;--cream:#f7f8fc;--text:#232936;--muted:#697187;--line:#d9dfeb}
+*{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+.wrap{max-width:1000px;margin:auto;padding:24px 18px 40px}
+.header{background:var(--navy);color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:18px}
+.header h1{margin:0 0 6px;font-family:Georgia,serif;font-size:26px}.header p{margin:0;color:#d9e3f5;font-size:14px}
+.idrow{display:grid;grid-template-columns:1fr 180px;gap:12px;margin-bottom:16px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:bold;margin-bottom:5px}.field input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+.section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}.section h2{margin:0 0 7px;color:var(--navy);font-family:Georgia,serif;font-size:20px}.intro{margin:0 0 13px;color:var(--muted);font-size:13.5px}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rule{background:#f8faff;border:1px solid #dde5f3;border-left:4px solid var(--blue);border-radius:8px;padding:10px 12px;font-size:13.2px}.rule strong{color:var(--navy)}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}th,td{border:1px solid var(--line);vertical-align:top}th{background:#eef3fb;color:var(--navy);padding:8px 7px;text-align:left}td{padding:6px;background:#fff}td.num{text-align:center;font-weight:bold;color:var(--blue)}
+textarea{width:100%;min-height:36px;resize:vertical;border:1px solid #e3e6ee;border-radius:5px;padding:5px 6px;font:12.5px Arial,Helvetica,sans-serif;background:#fcfcfe}
+.reflection{display:grid;grid-template-columns:1fr 1fr;gap:12px}.reflectbox{border:1px solid var(--line);border-radius:9px;padding:11px}.reflectbox label{display:block;font-size:12.5px;font-weight:bold;color:var(--navy);margin-bottom:6px}.reflectbox textarea{min-height:84px}
+.actions{text-align:center}.btn{border:0;border-radius:9px;padding:12px 20px;background:var(--accent);color:white;font-size:15px;font-weight:bold;cursor:pointer}.note{margin-top:8px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.idrow,.rules,.reflection{grid-template-columns:1fr}table{font-size:11.5px}textarea{font-size:11.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="header"><h1>Group Presentation Listening Log</h1><p>Audience Task — Business Life Group Presentations</p></header>
+
+<div class="idrow">
+<div class="field"><label>Group Name / Number</label><input id="group" placeholder="e.g., Group 4"></div>
+<div class="field"><label>Date</label><input id="date" value="30 September 2026"></div>
+</div>
+
+<section class="section">
+<h2>How to use this log</h2>
+<p class="intro">Your group is the audience. Listen actively and record <strong>keywords or short phrases</strong>. Do not write a full summary.</p>
+<div class="rules">
+<div class="rule"><strong>1. Case:</strong> What real-life business event or incident did they present?</div>
+<div class="rule"><strong>2. Cause → Effect:</strong> What important relationship did they explain?</div>
+<div class="rule"><strong>3. Connection / Contrast:</strong> How did they connect the case to a homework example, or show a meaningful difference?</div>
+<div class="rule"><strong>4. Takeaway:</strong> What useful insight can your group learn from the presentation?</div>
+</div>
+</section>
+
+<section class="section">
+<h2>Presentation Notes</h2>
+<p class="intro">Complete one row for each presenting group.</p>
+<table>
+<colgroup><col style="width:5%"><col style="width:16%"><col style="width:22%"><col style="width:29%"><col style="width:28%"></colgroup>
+<thead><tr><th>Group</th><th>Real-life Case</th><th>Main Cause → Effect</th><th>Connection / Contrast</th><th>One Useful Insight / Takeaway</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</section>
+
+<section class="section">
+<h2>Final Group Reflection</h2>
+<div class="reflection">
+<div class="reflectbox"><label>Which presentation gave your group the most useful new idea? Why?</label><textarea id="bestIdea" placeholder="Keywords or short phrases..."></textarea></div>
+<div class="reflectbox"><label>What common cause-and-effect pattern did you notice across several presentations?</label><textarea id="pattern" placeholder="Keywords or short phrases..."></textarea></div>
+</div>
+</section>
+
+<div class="actions"><button class="btn" id="download">Download as PDF</button><div class="note">One copy per group • A4 landscape • safe margins</div></div>
+</div>
+
+<script>
+const rows=document.getElementById('rows');
+for(let i=1;i<=10;i++){const tr=document.createElement('tr');tr.innerHTML=
+'<td class="num">'+i+'</td>'+
+'<td><textarea id="case-'+i+'" placeholder="Company / event"></textarea></td>'+
+'<td><textarea id="cause-'+i+'" placeholder="Cause → effect"></textarea></td>'+
+'<td><textarea id="connect-'+i+'" placeholder="Connection / contrast"></textarea></td>'+
+'<td><textarea id="take-'+i+'" placeholder="Useful insight"></textarea></td>';rows.appendChild(tr)}
+
+document.getElementById('download').onclick=function(){
+const {jsPDF}=window.jspdf;
+const doc=new jsPDF({orientation:'landscape',unit:'pt',format:'a4',compress:true});
+const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+const mx=36,my=34,uw=W-2*mx, navy=[31,43,85],blue=[73,103,155],text=[35,41,54],muted=[105,113,135],line=[217,223,235],head=[238,243,251],accent=[232,115,78];
+function font(size,bold,color){doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(...color)}
+function wrap(t,w){return doc.splitTextToSize(String(t||' '),w)}
+function cell(x,y,w,h,fill){doc.setFillColor(...fill);doc.setDrawColor(...line);doc.rect(x,y,w,h,'FD')}
+
+doc.setFillColor(...navy);doc.roundedRect(mx,my,uw,48,8,8,'F');
+font(18,true,[255,255,255]);doc.text('Group Presentation Listening Log',mx+16,my+21);
+font(9.5,false,[220,229,244]);doc.text('Audience Task — Business Life Group Presentations',mx+16,my+36);
+
+let y=my+64, group=document.getElementById('group').value.trim()||'____________________', date=document.getElementById('date').value.trim()||'30 September 2026';
+font(10,true,navy);doc.text('Group: '+group,mx,y);doc.text('Date: '+date,mx+uw-155,y);y+=14;
+font(9.2,false,muted);doc.text(wrap('For each presentation, record keywords or short phrases: case, cause → effect, connection/contrast, and one useful insight. Do not write a full summary.',uw),mx,y);y+=25;
+
+const cols=[.05,.16,.22,.29,.28].map(v=>v*uw), headers=['Group','Real-life Case','Main Cause → Effect','Connection / Contrast','One Useful Insight / Takeaway'];
+let x=mx,hdrH=24,rowH=34;
+headers.forEach((h,i)=>{cell(x,y,cols[i],hdrH,head);font(9,true,navy);doc.text(wrap(h,cols[i]-10),x+5,y+10);x+=cols[i]});y+=hdrH;
+
+for(let i=1;i<=10;i++){
+x=mx;
+const vals=[String(i),document.getElementById('case-'+i).value,document.getElementById('cause-'+i).value,document.getElementById('connect-'+i).value,document.getElementById('take-'+i).value];
+vals.forEach((v,j)=>{cell(x,y,cols[j],rowH,[255,255,255]);font(8.2,j===0,j===0?blue:text);doc.text(wrap(v||' ',cols[j]-10).slice(0,3),x+5,y+11);x+=cols[j]});y+=rowH}
+
+y+=15;font(12,true,navy);doc.text('Final Group Reflection',mx,y);y+=16;
+const gap=10,bw=(uw-gap)/2,bh=72;
+const q1='Which presentation gave your group the most useful new idea? Why?',q2='What common cause-and-effect pattern did you notice across several presentations?';
+[[q1,document.getElementById('bestIdea').value,mx],[q2,document.getElementById('pattern').value,mx+bw+gap]].forEach(([q,a,x])=>{
+cell(x,y,bw,bh,[255,255,255]);font(9,true,navy);doc.text(wrap(q,bw-12),x+6,y+12);font(8.6,false,text);doc.text(wrap(a||' ',bw-12).slice(0,3),x+6,y+35)
+});
+font(7.8,false,muted);doc.text('A4 landscape • safe 36 pt margins • one copy per group',mx,H-18);
+const safe=group.replace(/[^a-z0-9]+/gi,'_');doc.save(safe+'_Presentation_Listening_Log.pdf');
+}
+</script>
+</body>
+</html>
